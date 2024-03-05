@@ -15,6 +15,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    const int NUM_ELEVATORS = 3;
+    const int NUM_FLOORS = 7;
+
+    void init();
+
 private:
     Ui::MainWindow *ui;
 };
