@@ -7,7 +7,19 @@
 
 class Elevator{
 public:
+    Elevator(){
+        currentFloor = 0;
+        targetFloor = 0;
+        direction = "none";
+        state = "open";
+    }
+
     void setDoorState(QString state);
+    int getCurrentFloor();
+    void setTargetFloor(int floor);
+    int getTargetFloor();
+    void setDirection(QString direction);
+    QString getDirection();
 private:
     int currentFloor;
     int targetFloor;
@@ -18,7 +30,10 @@ private:
 class ECS{
 public:
     void addCab();
-    void sendCabTo(int floor);
+    int getCabs();
+    Elevator* getCab(int index);
+    void callCabTo(int floor);
+    void sendCabTo(int cab, int floor);
 private:
     QVector<Elevator*> cabs;
     QVector<int> floorRequests;
@@ -49,7 +64,7 @@ private:
 class Building{
 public:
     int getFloors();
-    Floor getFloor(int index);
+    Floor* getFloor(int index);
     void addFloor();
 private:
     QVector<Floor*> floors;
