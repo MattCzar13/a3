@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <elevator.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -18,7 +19,12 @@ public:
     const int NUM_ELEVATORS = 3;
     const int NUM_FLOORS = 7;
 
+    Building *building;
+    ECS *controlSystem;
+
     void init();
+
+    void print(QString message);
 
 private:
     Ui::MainWindow *ui;

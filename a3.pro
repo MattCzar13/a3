@@ -13,6 +13,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    elevator.h \
     mainwindow.h
 
 FORMS += \
