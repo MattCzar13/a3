@@ -27,7 +27,12 @@ public:
     void print(QString message);
 
     void UpdateElevatorPanel(int index);
+    void RefreshElevatorPanel();
     void UpdateFloorPanel(int index);
+    void RefreshFloorPanel();
+
+public slots:
+    void update_ui();
 
 private slots:
     void on_combo_elevator_picker_currentIndexChanged(int index);

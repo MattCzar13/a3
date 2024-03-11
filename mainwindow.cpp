@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QScrollBar>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -21,9 +22,15 @@ void MainWindow::print(QString message){
     // Can't figure out how to make the area autoscroll to the bottom :(
 }
 
-void ECS::addCab(){
+Elevator* ECS::addCab(){
     Elevator* e = new Elevator();
+    e->setID(this->cabs.size());
     this->cabs.push_back(e);
+    return e;
+}
+
+void Elevator::setID(int _id){
+    id = _id;
 }
 
 int ECS::getCabs(){
@@ -63,6 +70,31 @@ int Elevator::getTargetFloor(){
 
 void Elevator::setDirection(QString dir){
     direction = dir;
+
+    if (timerId){
+        killTimer(timerId);
+    }
+
+    if (direction != "none"){
+        timerId = startTimer(1000);
+    }
+}
+
+void Elevator::timerEvent(QTimerEvent *event){
+    if (currentFloor == targetFloor){
+        killTimer(timerId);
+        setDirection("none");
+        emit ui_change();
+        return;
+    }
+
+    if (currentFloor < targetFloor){
+        currentFloor += 1;
+    } else if (currentFloor > targetFloor){
+        currentFloor -= 1;
+    }
+
+    emit ui_change();
 }
 
 QString Elevator::getDirection(){
@@ -94,7 +126,9 @@ void MainWindow::init(){
     ui->combo_elevator_picker->clear();
     for (int i = 0; i < NUM_ELEVATORS; i++){
 
-        controlSystem->addCab();
+        Elevator* e = controlSystem->addCab();
+
+        this->connect(e, SIGNAL(ui_change()), this, SLOT(update_ui()));
 
         ui->combo_elevator_picker->addItem(QString::number(i));
     }
@@ -119,6 +153,11 @@ void MainWindow::init(){
     MainWindow::UpdateFloorPanel(ui->combo_floor_picker->currentIndex());
 }
 
+void MainWindow::update_ui(){
+    MainWindow::RefreshElevatorPanel();
+    MainWindow::RefreshFloorPanel();
+}
+
 void MainWindow::on_combo_elevator_picker_currentIndexChanged(int index)
 {
     if (setup){
@@ -126,6 +165,14 @@ void MainWindow::on_combo_elevator_picker_currentIndexChanged(int index)
     }
 
     MainWindow::UpdateElevatorPanel(index);
+}
+
+void MainWindow::RefreshElevatorPanel(){
+    MainWindow::UpdateElevatorPanel(ui->combo_elevator_picker->currentIndex());
+}
+
+void MainWindow::RefreshFloorPanel(){
+     MainWindow::UpdateFloorPanel(ui->combo_floor_picker->currentIndex());
 }
 
 void MainWindow::UpdateElevatorPanel(int index){
@@ -162,13 +209,16 @@ void MainWindow::on_combo_elevator_dest_currentIndexChanged(int index)
 
 }
 
-
 void MainWindow::on_button_elevator_dest_clicked()
 {
     controlSystem->sendCabTo(ui->combo_elevator_picker->currentIndex(), ui->combo_elevator_dest->currentIndex());
-    MainWindow::UpdateElevatorPanel(ui->combo_elevator_picker->currentIndex());
+    MainWindow::RefreshElevatorPanel();
+    MainWindow::print("Sending elevator " +
+                      QString::number(ui->combo_elevator_picker->currentIndex()) +
+                      " to floor " +
+                      QString::number(ui->combo_elevator_dest->currentIndex()) +
+                      + "...");
 }
-
 
 void MainWindow::on_combo_floor_picker_currentIndexChanged(int index)
 {

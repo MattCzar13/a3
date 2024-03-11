@@ -4,8 +4,11 @@
 #include <QObject>
 #include <QVector>
 #include <QString>
+#include <QTimer>
+#include <QTimerEvent>
 
-class Elevator{
+class Elevator : public QObject{
+    Q_OBJECT
 public:
     Elevator(){
         currentFloor = 0;
@@ -20,16 +23,23 @@ public:
     int getTargetFloor();
     void setDirection(QString direction);
     QString getDirection();
+    void setID(int id);
 private:
+    int id;
     int currentFloor;
     int targetFloor;
     QString direction;
     QString state;
+    int timerId;
+protected:
+    void timerEvent(QTimerEvent *event);
+signals:
+    void ui_change();
 };
 
 class ECS{
 public:
-    void addCab();
+    Elevator* addCab();
     int getCabs();
     Elevator* getCab(int index);
     void callCabTo(int floor);
